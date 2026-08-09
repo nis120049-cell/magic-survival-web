@@ -6,12 +6,79 @@ let playerY = window.innerHeight / 2;
 
 const speed = 5;
 
+// =========================
+// PLAYER
+// =========================
+
+let playerHP = 100;
+let maxHP = 100;
+
 let keys = {
     up: false,
     down: false,
     left: false,
     right: false
 };
+
+// =========================
+// MUSUH
+// =========================
+
+let enemies = [];
+
+function createEnemy() {
+
+    const enemy = document.createElement("div");
+
+    enemy.classList.add("enemy");
+
+    const side = Math.floor(Math.random() * 4);
+
+    let x;
+    let y;
+
+    if (side === 0) {
+        x = Math.random() * window.innerWidth;
+        y = -40;
+    }
+
+    if (side === 1) {
+        x = window.innerWidth + 40;
+        y = Math.random() * window.innerHeight;
+    }
+
+    if (side === 2) {
+        x = Math.random() * window.innerWidth;
+        y = window.innerHeight + 40;
+    }
+
+    if (side === 3) {
+        x = -40;
+        y = Math.random() * window.innerHeight;
+    }
+
+    enemy.style.left = x + "px";
+    enemy.style.top = y + "px";
+
+    game.appendChild(enemy);
+
+    enemies.push({
+        element: enemy,
+        x: x,
+        y: y,
+        speed: 1.2,
+        damageCooldown: 0
+    });
+}
+
+setInterval(function() {
+    createEnemy();
+}, 1500);
+
+
+// =========================
+// GERAK PLAYER
+// =========================
 
 function updatePlayer() {
 
@@ -31,12 +98,21 @@ function updatePlayer() {
         playerX += speed;
     }
 
-    // Batas arena
-    const maxX = window.innerWidth - player.offsetWidth;
-    const maxY = window.innerHeight - player.offsetHeight;
+    const maxX =
+        window.innerWidth - player.offsetWidth;
 
-    playerX = Math.max(0, Math.min(playerX, maxX));
-    playerY = Math.max(0, Math.min(playerY, maxY));
+    const maxY =
+        window.innerHeight - player.offsetHeight;
+
+    playerX = Math.max(
+        0,
+        Math.min(playerX, maxX)
+    );
+
+    playerY = Math.max(
+        0,
+        Math.min(playerY, maxY)
+    );
 
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
@@ -44,36 +120,71 @@ function updatePlayer() {
     requestAnimationFrame(updatePlayer);
 }
 
+
+// =========================
+// TOMBOL HP
+// =========================
+
 function buttonControl(id, direction) {
 
-    const button = document.getElementById(id);
+    const button =
+        document.getElementById(id);
 
-    button.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        keys[direction] = true;
-    });
+    button.addEventListener(
+        "touchstart",
+        function(e) {
 
-    button.addEventListener("touchend", function(e) {
-        e.preventDefault();
-        keys[direction] = false;
-    });
+            e.preventDefault();
+            keys[direction] = true;
 
-    button.addEventListener("touchcancel", function() {
-        keys[direction] = false;
-    });
+        }
+    );
 
-    // Supaya bisa dites dengan mouse/PC
-    button.addEventListener("mousedown", function() {
-        keys[direction] = true;
-    });
+    button.addEventListener(
+        "touchend",
+        function(e) {
 
-    button.addEventListener("mouseup", function() {
-        keys[direction] = false;
-    });
+            e.preventDefault();
+            keys[direction] = false;
 
-    button.addEventListener("mouseleave", function() {
-        keys[direction] = false;
-    });
+        }
+    );
+
+    button.addEventListener(
+        "touchcancel",
+        function() {
+
+            keys[direction] = false;
+
+        }
+    );
+
+    button.addEventListener(
+        "mousedown",
+        function() {
+
+            keys[direction] = true;
+
+        }
+    );
+
+    button.addEventListener(
+        "mouseup",
+        function() {
+
+            keys[direction] = false;
+
+        }
+    );
+
+    button.addEventListener(
+        "mouseleave",
+        function() {
+
+            keys[direction] = false;
+
+        }
+    );
 }
 
 buttonControl("up", "up");
@@ -81,87 +192,103 @@ buttonControl("down", "down");
 buttonControl("left", "left");
 buttonControl("right", "right");
 
-updatePlayer();
+
 // =========================
-// SISTEM MUSUH
+// HP PLAYER
 // =========================
 
-let enemies = [];
+function createHPBar() {
 
-function createEnemy() {
+    const hpContainer =
+        document.createElement("div");
 
-    const enemy = document.createElement("div");
+    hpContainer.id = "hpContainer";
 
-    enemy.classList.add("enemy");
+    const hpBar =
+        document.createElement("div");
 
-    const side = Math.floor(Math.random() * 4);
+    hpBar.id = "hpBar";
 
-    let x;
-    let y;
+    hpContainer.appendChild(hpBar);
 
-    if (side === 0) {
-        // Atas
-        x = Math.random() * window.innerWidth;
-        y = -40;
-    }
+    game.appendChild(hpContainer);
+}
 
-    if (side === 1) {
-        // Kanan
-        x = window.innerWidth + 40;
-        y = Math.random() * window.innerHeight;
-    }
+createHPBar();
 
-    if (side === 2) {
-        // Bawah
-        x = Math.random() * window.innerWidth;
-        y = window.innerHeight + 40;
-    }
 
-    if (side === 3) {
-        // Kiri
-        x = -40;
-        y = Math.random() * window.innerHeight;
-    }
+function updateHP() {
 
-    enemy.style.left = x + "px";
-    enemy.style.top = y + "px";
+    const hpBar =
+        document.getElementById("hpBar");
 
-    game.appendChild(enemy);
+    const percentage =
+        (playerHP / maxHP) * 100;
 
-    enemies.push({
-        element: enemy,
-        x: x,
-        y: y,
-        speed: 1.2
-    });
+    hpBar.style.width =
+        percentage + "%";
 }
 
 
-// Membuat musuh setiap 1,5 detik
-setInterval(function() {
-    createEnemy();
-}, 1500);
+// =========================
+// DAMAGE PLAYER
+// =========================
+
+function damagePlayer(damage) {
+
+    playerHP -= damage;
+
+    if (playerHP < 0) {
+        playerHP = 0;
+    }
+
+    updateHP();
+
+    // Efek terkena serangan
+    player.style.transform =
+        "translate(-50%, -50%) scale(1.2)";
+
+    setTimeout(function() {
+
+        player.style.transform =
+            "translate(-50%, -50%) scale(1)";
+
+    }, 100);
+
+    if (playerHP <= 0) {
+
+        gameOver();
+
+    }
+}
 
 
-// Gerakkan semua musuh menuju pemain
+// =========================
+// MUSUH MENGEJAR PLAYER
+// =========================
+
 function updateEnemies() {
 
     enemies.forEach(function(enemy) {
 
-        const dx = playerX - enemy.x;
-        const dy = playerY - enemy.y;
+        const dx =
+            playerX - enemy.x;
 
-        const distance = Math.sqrt(
-            dx * dx + dy * dy
-        );
+        const dy =
+            playerY - enemy.y;
+
+        const distance =
+            Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 1) {
 
             enemy.x +=
-                (dx / distance) * enemy.speed;
+                (dx / distance) *
+                enemy.speed;
 
             enemy.y +=
-                (dy / distance) * enemy.speed;
+                (dy / distance) *
+                enemy.speed;
         }
 
         enemy.element.style.left =
@@ -169,137 +296,63 @@ function updateEnemies() {
 
         enemy.element.style.top =
             enemy.y + "px";
+
+
+        // Tabrakan dengan player
+        if (distance < 35) {
+
+            if (enemy.damageCooldown <= 0) {
+
+                damagePlayer(10);
+
+                enemy.damageCooldown = 60;
+            }
+        }
+
+        if (enemy.damageCooldown > 0) {
+
+            enemy.damageCooldown--;
+        }
+
     });
 
     requestAnimationFrame(updateEnemies);
 }
 
+
+// =========================
+// GAME OVER
+// =========================
+
+function gameOver() {
+
+    const screen =
+        document.createElement("div");
+
+    screen.id = "gameOver";
+
+    screen.innerHTML = `
+        <div class="gameOverBox">
+
+            <h1>GAME OVER</h1>
+
+            <p>Kamu bertahan sampai HP habis.</p>
+
+            <button onclick="location.reload()">
+                MAIN LAGI
+            </button>
+
+        </div>
+    `;
+
+    game.appendChild(screen);
+}
+
+
+// =========================
+// MULAI GAME
+// =========================
+
+updatePlayer();
 updateEnemies();
-// =========================
-// SISTEM MAGIC OTOMATIS
-// =========================
-
-let projectiles = [];
-
-function findNearestEnemy() {
-
-    let nearest = null;
-    let nearestDistance = Infinity;
-
-    enemies.forEach(function(enemy) {
-
-        const dx = enemy.x - playerX;
-        const dy = enemy.y - playerY;
-
-        const distance = Math.sqrt(
-            dx * dx + dy * dy
-        );
-
-        if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearest = enemy;
-        }
-
-    });
-
-    return nearest;
-}
-
-
-function shootMagic() {
-
-    const target = findNearestEnemy();
-
-    if (!target) {
-        return;
-    }
-
-    const magic = document.createElement("div");
-
-    magic.classList.add("magic");
-
-    let x = playerX;
-    let y = playerY;
-
-    magic.style.left = x + "px";
-    magic.style.top = y + "px";
-
-    game.appendChild(magic);
-
-    const dx = target.x - x;
-    const dy = target.y - y;
-
-    const distance = Math.sqrt(
-        dx * dx + dy * dy
-    );
-
-    projectiles.push({
-        element: magic,
-        x: x,
-        y: y,
-        vx: dx / distance * 7,
-        vy: dy / distance * 7
-    });
-}
-
-
-// Magic ditembak setiap 700ms
-setInterval(function() {
-    shootMagic();
-}, 700);
-
-
-// Gerakkan magic
-function updateProjectiles() {
-
-    projectiles.forEach(function(projectile, projectileIndex) {
-
-        projectile.x += projectile.vx;
-        projectile.y += projectile.vy;
-
-        projectile.element.style.left =
-            projectile.x + "px";
-
-        projectile.element.style.top =
-            projectile.y + "px";
-
-
-        // Cek tabrakan dengan musuh
-        enemies.forEach(function(enemy, enemyIndex) {
-
-            const dx =
-                projectile.x - enemy.x;
-
-            const dy =
-                projectile.y - enemy.y;
-
-            const distance =
-                Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < 25) {
-
-                // Hapus musuh
-                enemy.element.remove();
-
-                enemies.splice(
-                    enemyIndex,
-                    1
-                );
-
-                // Hapus magic
-                projectile.element.remove();
-
-                projectiles.splice(
-                    projectileIndex,
-                    1
-                );
-            }
-
-        });
-
-    });
-
-    requestAnimationFrame(updateProjectiles);
-}
-
-updateProjectiles();
+updateHP();
