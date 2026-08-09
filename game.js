@@ -82,3 +82,96 @@ buttonControl("left", "left");
 buttonControl("right", "right");
 
 updatePlayer();
+// =========================
+// SISTEM MUSUH
+// =========================
+
+let enemies = [];
+
+function createEnemy() {
+
+    const enemy = document.createElement("div");
+
+    enemy.classList.add("enemy");
+
+    const side = Math.floor(Math.random() * 4);
+
+    let x;
+    let y;
+
+    if (side === 0) {
+        // Atas
+        x = Math.random() * window.innerWidth;
+        y = -40;
+    }
+
+    if (side === 1) {
+        // Kanan
+        x = window.innerWidth + 40;
+        y = Math.random() * window.innerHeight;
+    }
+
+    if (side === 2) {
+        // Bawah
+        x = Math.random() * window.innerWidth;
+        y = window.innerHeight + 40;
+    }
+
+    if (side === 3) {
+        // Kiri
+        x = -40;
+        y = Math.random() * window.innerHeight;
+    }
+
+    enemy.style.left = x + "px";
+    enemy.style.top = y + "px";
+
+    game.appendChild(enemy);
+
+    enemies.push({
+        element: enemy,
+        x: x,
+        y: y,
+        speed: 1.2
+    });
+}
+
+
+// Membuat musuh setiap 1,5 detik
+setInterval(function() {
+    createEnemy();
+}, 1500);
+
+
+// Gerakkan semua musuh menuju pemain
+function updateEnemies() {
+
+    enemies.forEach(function(enemy) {
+
+        const dx = playerX - enemy.x;
+        const dy = playerY - enemy.y;
+
+        const distance = Math.sqrt(
+            dx * dx + dy * dy
+        );
+
+        if (distance > 1) {
+
+            enemy.x +=
+                (dx / distance) * enemy.speed;
+
+            enemy.y +=
+                (dy / distance) * enemy.speed;
+        }
+
+        enemy.element.style.left =
+            enemy.x + "px";
+
+        enemy.element.style.top =
+            enemy.y + "px";
+    });
+
+    requestAnimationFrame(updateEnemies);
+}
+
+updateEnemies();
