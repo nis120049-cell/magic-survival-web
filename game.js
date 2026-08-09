@@ -175,3 +175,131 @@ function updateEnemies() {
 }
 
 updateEnemies();
+// =========================
+// SISTEM MAGIC OTOMATIS
+// =========================
+
+let projectiles = [];
+
+function findNearestEnemy() {
+
+    let nearest = null;
+    let nearestDistance = Infinity;
+
+    enemies.forEach(function(enemy) {
+
+        const dx = enemy.x - playerX;
+        const dy = enemy.y - playerY;
+
+        const distance = Math.sqrt(
+            dx * dx + dy * dy
+        );
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearest = enemy;
+        }
+
+    });
+
+    return nearest;
+}
+
+
+function shootMagic() {
+
+    const target = findNearestEnemy();
+
+    if (!target) {
+        return;
+    }
+
+    const magic = document.createElement("div");
+
+    magic.classList.add("magic");
+
+    let x = playerX;
+    let y = playerY;
+
+    magic.style.left = x + "px";
+    magic.style.top = y + "px";
+
+    game.appendChild(magic);
+
+    const dx = target.x - x;
+    const dy = target.y - y;
+
+    const distance = Math.sqrt(
+        dx * dx + dy * dy
+    );
+
+    projectiles.push({
+        element: magic,
+        x: x,
+        y: y,
+        vx: dx / distance * 7,
+        vy: dy / distance * 7
+    });
+}
+
+
+// Magic ditembak setiap 700ms
+setInterval(function() {
+    shootMagic();
+}, 700);
+
+
+// Gerakkan magic
+function updateProjectiles() {
+
+    projectiles.forEach(function(projectile, projectileIndex) {
+
+        projectile.x += projectile.vx;
+        projectile.y += projectile.vy;
+
+        projectile.element.style.left =
+            projectile.x + "px";
+
+        projectile.element.style.top =
+            projectile.y + "px";
+
+
+        // Cek tabrakan dengan musuh
+        enemies.forEach(function(enemy, enemyIndex) {
+
+            const dx =
+                projectile.x - enemy.x;
+
+            const dy =
+                projectile.y - enemy.y;
+
+            const distance =
+                Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 25) {
+
+                // Hapus musuh
+                enemy.element.remove();
+
+                enemies.splice(
+                    enemyIndex,
+                    1
+                );
+
+                // Hapus magic
+                projectile.element.remove();
+
+                projectiles.splice(
+                    projectileIndex,
+                    1
+                );
+            }
+
+        });
+
+    });
+
+    requestAnimationFrame(updateProjectiles);
+}
+
+updateProjectiles();
