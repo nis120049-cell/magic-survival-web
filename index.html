@@ -2,15 +2,149 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+          maximum-scale=1.0, user-scalable=no">
+
     <title>Magic Survival Web</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #080b14;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+
+        #game {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at center,
+                #17213b 0%,
+                #0b1020 45%,
+                #05070d 100%);
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            z-index: 10;
+            color: white;
+        }
+
+        #level {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        #xpBar {
+            width: 100%;
+            height: 12px;
+            background: #252b3a;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #xp {
+            width: 0%;
+            height: 100%;
+            background: #7c4dff;
+            transition: width 0.2s;
+        }
+
+        #player {
+            width: 45px;
+            height: 45px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: #8b5cf6;
+            border: 3px solid white;
+            box-shadow:
+                0 0 15px #8b5cf6,
+                0 0 35px #6d28d9;
+            z-index: 5;
+        }
+
+        /* Tombol gerak */
+        #controls {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            z-index: 20;
+        }
+
+        .control {
+            width: 55px;
+            height: 55px;
+            margin: 3px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 22px;
+        }
+
+        .control:active {
+            background: rgba(139,92,246,0.6);
+        }
+
+        #up {
+            display: block;
+            margin-left: 61px;
+        }
+
+        /* Musuh contoh */
+        .enemy {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 15px #ef4444;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>MAGIC SURVIVAL</h1>
+<div id="game">
 
-    <p>Game sedang dibuat...</p>
+    <div id="hud">
+        <div id="level">Level 1</div>
+
+        <div id="xpBar">
+            <div id="xp"></div>
+        </div>
+    </div>
+
+    <div id="player"></div>
+
+    <div id="controls">
+        <button class="control" id="up">▲</button>
+        <div>
+            <button class="control" id="left">◀</button>
+            <button class="control" id="down">▼</button>
+            <button class="control" id="right">▶</button>
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>
