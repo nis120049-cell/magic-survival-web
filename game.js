@@ -13,6 +13,12 @@ const speed = 5;
 let playerHP = 100;
 let maxHP = 100;
 
+let level = 1;
+let xp = 0;
+let xpNeeded = 5;
+
+let damage = 25;
+
 let keys = {
     up: false,
     down: false,
@@ -67,6 +73,7 @@ function createEnemy() {
         x: x,
         y: y,
         speed: 1.2,
+        hp: 50,
         damageCooldown: 0
     });
 }
@@ -75,28 +82,16 @@ setInterval(function() {
     createEnemy();
 }, 1500);
 
-
 // =========================
 // GERAK PLAYER
 // =========================
 
 function updatePlayer() {
 
-    if (keys.up) {
-        playerY -= speed;
-    }
-
-    if (keys.down) {
-        playerY += speed;
-    }
-
-    if (keys.left) {
-        playerX -= speed;
-    }
-
-    if (keys.right) {
-        playerX += speed;
-    }
+    if (keys.up) playerY -= speed;
+    if (keys.down) playerY += speed;
+    if (keys.left) playerX -= speed;
+    if (keys.right) playerX += speed;
 
     const maxX =
         window.innerWidth - player.offsetWidth;
@@ -120,9 +115,8 @@ function updatePlayer() {
     requestAnimationFrame(updatePlayer);
 }
 
-
 // =========================
-// TOMBOL HP
+// KONTROL HP
 // =========================
 
 function buttonControl(id, direction) {
@@ -133,56 +127,37 @@ function buttonControl(id, direction) {
     button.addEventListener(
         "touchstart",
         function(e) {
-
             e.preventDefault();
             keys[direction] = true;
-
         }
     );
 
     button.addEventListener(
         "touchend",
         function(e) {
-
             e.preventDefault();
             keys[direction] = false;
-
         }
     );
 
     button.addEventListener(
         "touchcancel",
         function() {
-
             keys[direction] = false;
-
         }
     );
 
     button.addEventListener(
         "mousedown",
         function() {
-
             keys[direction] = true;
-
         }
     );
 
     button.addEventListener(
         "mouseup",
         function() {
-
             keys[direction] = false;
-
-        }
-    );
-
-    button.addEventListener(
-        "mouseleave",
-        function() {
-
-            keys[direction] = false;
-
         }
     );
 }
@@ -192,9 +167,8 @@ buttonControl("down", "down");
 buttonControl("left", "left");
 buttonControl("right", "right");
 
-
 // =========================
-// HP PLAYER
+// HP BAR
 // =========================
 
 function createHPBar() {
@@ -216,7 +190,6 @@ function createHPBar() {
 
 createHPBar();
 
-
 function updateHP() {
 
     const hpBar =
@@ -229,14 +202,88 @@ function updateHP() {
         percentage + "%";
 }
 
+// =========================
+// XP BAR
+// =========================
+
+function createXPBar() {
+
+    const xpContainer =
+        document.createElement("div");
+
+    xpContainer.id = "xpContainer";
+
+    const xpBar =
+        document.createElement("div");
+
+    xpBar.id = "xpBar";
+
+    xpContainer.appendChild(xpBar);
+
+    game.appendChild(xpContainer);
+}
+
+createXPBar();
+
+function updateXP() {
+
+    const xpBar =
+        document.getElementById("xpBar");
+
+    const percentage =
+        (xp / xpNeeded) * 100;
+
+    xpBar.style.width =
+        percentage + "%";
+}
+
+// =========================
+// LEVEL
+// =========================
+
+function updateLevelText() {
+
+    const levelText =
+        document.getElementById("levelText");
+
+    if (levelText) {
+        levelText.textContent =
+            "LEVEL " + level;
+    }
+}
+
+function gainXP(amount) {
+
+    xp += amount;
+
+    if (xp >= xpNeeded) {
+
+        xp -= xpNeeded;
+
+        level++;
+
+        xpNeeded =
+            Math.floor(xpNeeded * 1.4);
+
+        updateLevelText();
+
+        updateXP();
+
+        showLevelUp();
+
+        return;
+    }
+
+    updateXP();
+}
 
 // =========================
 // DAMAGE PLAYER
 // =========================
 
-function damagePlayer(damage) {
+function damagePlayer(amount) {
 
-    playerHP -= damage;
+    playerHP -= amount;
 
     if (playerHP < 0) {
         playerHP = 0;
@@ -244,27 +291,13 @@ function damagePlayer(damage) {
 
     updateHP();
 
-    // Efek terkena serangan
-    player.style.transform =
-        "translate(-50%, -50%) scale(1.2)";
-
-    setTimeout(function() {
-
-        player.style.transform =
-            "translate(-50%, -50%) scale(1)";
-
-    }, 100);
-
     if (playerHP <= 0) {
-
         gameOver();
-
     }
 }
 
-
 // =========================
-// MUSUH MENGEJAR PLAYER
+// MUSUH MENGEJAR
 // =========================
 
 function updateEnemies() {
@@ -297,8 +330,6 @@ function updateEnemies() {
         enemy.element.style.top =
             enemy.y + "px";
 
-
-        // Tabrakan dengan player
         if (distance < 35) {
 
             if (enemy.damageCooldown <= 0) {
@@ -310,7 +341,6 @@ function updateEnemies() {
         }
 
         if (enemy.damageCooldown > 0) {
-
             enemy.damageCooldown--;
         }
 
@@ -319,6 +349,213 @@ function updateEnemies() {
     requestAnimationFrame(updateEnemies);
 }
 
+// =========================
+// MAGIC
+// =========================
+
+let projectiles = [];
+
+function findNearestEnemy() {
+
+    let nearest = null;
+    let nearestDistance = Infinity;
+
+    enemies.forEach(function(enemy) {
+
+        const dx =
+            enemy.x - playerX;
+
+        const dy =
+            enemy.y - playerY;
+
+        const distance =
+            Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < nearestDistance) {
+
+            nearestDistance = distance;
+            nearest = enemy;
+        }
+    });
+
+    return nearest;
+}
+
+function shootMagic() {
+
+    const target =
+        findNearestEnemy();
+
+    if (!target) return;
+
+    const magic =
+        document.createElement("div");
+
+    magic.classList.add("magic");
+
+    let x = playerX;
+    let y = playerY;
+
+    magic.style.left =
+        x + "px";
+
+    magic.style.top =
+        y + "px";
+
+    game.appendChild(magic);
+
+    const dx =
+        target.x - x;
+
+    const dy =
+        target.y - y;
+
+    const distance =
+        Math.sqrt(dx * dx + dy * dy);
+
+    projectiles.push({
+        element: magic,
+        x: x,
+        y: y,
+        vx: dx / distance * 7,
+        vy: dy / distance * 7
+    });
+}
+
+setInterval(function() {
+    shootMagic();
+}, 700);
+
+// =========================
+// UPDATE MAGIC
+// =========================
+
+function updateProjectiles() {
+
+    projectiles.forEach(function(
+        projectile,
+        projectileIndex
+    ) {
+
+        projectile.x += projectile.vx;
+        projectile.y += projectile.vy;
+
+        projectile.element.style.left =
+            projectile.x + "px";
+
+        projectile.element.style.top =
+            projectile.y + "px";
+
+        enemies.forEach(function(
+            enemy,
+            enemyIndex
+        ) {
+
+            const dx =
+                projectile.x - enemy.x;
+
+            const dy =
+                projectile.y - enemy.y;
+
+            const distance =
+                Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 25) {
+
+                enemy.hp -= damage;
+
+                projectile.element.remove();
+
+                projectiles.splice(
+                    projectileIndex,
+                    1
+                );
+
+                if (enemy.hp <= 0) {
+
+                    enemy.element.remove();
+
+                    enemies.splice(
+                        enemyIndex,
+                        1
+                    );
+
+                    // Dapat XP
+                    gainXP(1);
+                }
+            }
+        });
+    });
+
+    requestAnimationFrame(updateProjectiles);
+}
+
+// =========================
+// LEVEL UP MENU
+// =========================
+
+function showLevelUp() {
+
+    const menu =
+        document.createElement("div");
+
+    menu.id = "levelUp";
+
+    menu.innerHTML = `
+        <div class="levelUpBox">
+
+            <h1>LEVEL UP!</h1>
+
+            <p>Pilih peningkatan:</p>
+
+            <button id="skillDamage">
+                🔥 DAMAGE +10
+            </button>
+
+            <button id="skillSpeed">
+                ⚡ MAGIC SPEED
+            </button>
+
+            <button id="skillHP">
+                ❤️ MAX HP +20
+            </button>
+
+        </div>
+    `;
+
+    game.appendChild(menu);
+
+    document.getElementById(
+        "skillDamage"
+    ).onclick = function() {
+
+        damage += 10;
+
+        menu.remove();
+    };
+
+    document.getElementById(
+        "skillSpeed"
+    ).onclick = function() {
+
+        menu.remove();
+
+        alert("Magic Speed akan dikembangkan pada versi berikutnya!");
+    };
+
+    document.getElementById(
+        "skillHP"
+    ).onclick = function() {
+
+        maxHP += 20;
+
+        playerHP += 20;
+
+        updateHP();
+
+        menu.remove();
+    };
+}
 
 // =========================
 // GAME OVER
@@ -336,7 +573,7 @@ function gameOver() {
 
             <h1>GAME OVER</h1>
 
-            <p>Kamu bertahan sampai HP habis.</p>
+            <p>Level kamu: ${level}</p>
 
             <button onclick="location.reload()">
                 MAIN LAGI
@@ -348,11 +585,12 @@ function gameOver() {
     game.appendChild(screen);
 }
 
-
 // =========================
-// MULAI GAME
+// MULAI
 // =========================
 
 updatePlayer();
 updateEnemies();
+updateProjectiles();
 updateHP();
+updateXP();
