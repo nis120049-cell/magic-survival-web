@@ -1,186 +1,121 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0,
-          maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Magic Survival Web</title>
+    <title>Math Adventure</title>
 
-    <style>
-
-    /* CSS yang sudah ada */
-
-    .enemy {
-        width: 30px;
-        height: 30px;
-        position: absolute;
-        border-radius: 50%;
-        background: #ef4444;
-        box-shadow: 0 0 15px #ef4444;
-    }
-
-    .magic {
-        width: 12px;
-        height: 12px;
-        position: absolute;
-        border-radius: 50%;
-        background: #a855f7;
-        box-shadow:
-            0 0 8px #a855f7,
-            0 0 20px #7c3aed;
-        z-index: 4;
-    }
-
-    /* TAMBAHKAN DI SINI */
-
-    #hpContainer {
-        position: absolute;
-        top: 55px;
-        left: 15px;
-        width: 180px;
-        height: 14px;
-        background: #333;
-        border-radius: 20px;
-        overflow: hidden;
-        z-index: 10;
-    }
-
-    #hpBar {
-        width: 100%;
-        height: 100%;
-        background: #22c55e;
-        transition: width 0.2s;
-    }
-
-    #gameOver {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 100;
-    }
-
-    .gameOverBox {
-        text-align: center;
-        color: white;
-    }
-
-    .gameOverBox h1 {
-        font-size: 42px;
-        margin-bottom: 15px;
-    }
-
-    .gameOverBox p {
-        margin-bottom: 20px;
-    }
-
-    .gameOverBox button {
-        padding: 14px 30px;
-        border: none;
-        border-radius: 10px;
-        background: #8b5cf6;
-        color: white;
-        font-size: 18px;
-    }
-#levelText {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    z-index: 20;
-}
-
-#xpContainer {
-    position: absolute;
-    top: 35px;
-    left: 15px;
-    width: 180px;
-    height: 10px;
-    background: #333;
-    border-radius: 20px;
-    overflow: hidden;
-    z-index: 10;
-}
-
-#xpBar {
-    width: 0%;
-    height: 100%;
-    background: #a855f7;
-    transition: width 0.2s;
-}
-
-#levelUp {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-}
-
-.levelUpBox {
-    width: 90%;
-    max-width: 350px;
-    padding: 25px;
-    text-align: center;
-    background: #151a2b;
-    border-radius: 20px;
-    color: white;
-}
-
-.levelUpBox h1 {
-    margin-bottom: 10px;
-}
-
-.levelUpBox p {
-    margin-bottom: 20px;
-}
-
-.levelUpBox button {
-    display: block;
-    width: 100%;
-    padding: 15px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 12px;
-    background: #8b5cf6;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-}
-        </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div id="game">
+    <div class="sky">
 
-    <div id="hud">
-       <div id="levelText">LEVEL 1</div>
+        <div class="sun"></div>
 
-    </div>
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
 
-    <div id="player"></div>
+        <div class="mountain mountain-back"></div>
+        <div class="mountain mountain-front"></div>
 
-    <div id="controls">
-        <button class="control" id="up">▲</button>
-        <div>
-            <button class="control" id="left">◀</button>
-            <button class="control" id="down">▼</button>
-            <button class="control" id="right">▶</button>
+        <div class="ground"></div>
+
+        <div class="sakura-tree tree-1">
+            <div class="trunk"></div>
+            <div class="leaves"></div>
         </div>
+
+        <div class="sakura-tree tree-2">
+            <div class="trunk"></div>
+            <div class="leaves"></div>
+        </div>
+
     </div>
 
-</div>
 
-<script src="game.js"></script>
+    <div class="game">
+
+        <header class="top-bar">
+
+            <div>
+                ❤️ <span id="lives">3</span>
+            </div>
+
+            <div>
+                LEVEL <span id="level">1</span>
+            </div>
+
+            <div>
+                ⭐ <span id="score">0</span>
+            </div>
+
+        </header>
+
+        <main class="game-card">
+
+            <h1>Math Adventure</h1>
+
+            <p>
+                Soal
+                <span id="questionNumber">1</span>
+                /
+                <span id="totalQuestions">100</span>
+            </p>
+
+            <div id="question" class="question">
+                Memuat soal...
+            </div>
+
+            <div id="answers" class="answers"></div>
+
+            <p id="message"></p>
+
+        </main>
+
+    </div>
+
+        <header class="top-bar">
+
+            <div>❤️ <span id="lives">3</span></div>
+
+            <div>
+                LEVEL <span id="level">1</span>
+            </div>
+
+            <div>
+                ⭐ <span id="score">0</span>
+            </div>
+
+        </header>
+
+        <main class="game-card">
+
+            <h1>Math Adventure</h1>
+
+            <p>
+                Soal
+                <span id="questionNumber">1</span>
+                / <span id="totalQuestions">100</span>
+            </p>
+
+            <div id="question" class="question">
+                Memuat soal...
+            </div>
+
+            <div id="answers" class="answers"></div>
+
+            <p id="message"></p>
+
+        </main>
+
+    </div>
+
+    <script src="script.js"></script>
 
 </body>
-</html>
+
+  </html>
